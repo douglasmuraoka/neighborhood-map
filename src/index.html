@@ -16,21 +16,11 @@
 	</head>
 	<body>
 		<div id="container">
-
 			<!-- Used to render map -->
-			<div id="map"></div>
+			<div id="map" data-bind="googlemap: map"></div>
 		</div>
-
-		<script>
-			// Initializes map using Udacity @ São Paulo lat and lng
-	    	var map;
-	    	function initMap() {
-	        	map = new google.maps.Map(document.getElementById('map'), {
-	        	center: {lat: -23.59421, lng: -46.6908882},
-	        	zoom: 18
-	        });
-	      }
-	    </script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7_Yk1nTQK74cYcy23uc2qC0IFLCQV_KM&callback=initMap" async defer></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7_Yk1nTQK74cYcy23uc2qC0IFLCQV_KM"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+		<script src="js/main.js"></script>
 	</body>
 </html>
