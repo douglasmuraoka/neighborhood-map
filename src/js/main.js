@@ -16,6 +16,9 @@ var MapViewModel = function (lat, lng, zoom) {
 	// Contains the visible markers of our map
 	this.markers = ko.observableArray([]);
 
+	// Contains the InfoWindows mapped by the position (google.maps.LatLng)
+	this.infoWindows = []; // {LatLng : InfoWindow}
+
 	// The text used as filter of our markers
 	this.filter = ko.observable();
 
@@ -40,8 +43,80 @@ var MapViewModel = function (lat, lng, zoom) {
 			'position': position,
 			'map': self.map
 		}));
+
+		// Creates a request to Wikipedia, allowing us to fetch additional info to show in an InfoWindow
+		$.ajax('https://en.wikipedia.org/w/api.php', {
+			'dataType': 'jsonp',
+			'data': {
+				'action': 'query',
+				'list': 'search',
+				'srsearch': title,
+				'format': 'json',
+				'prop': 'extracts',
+				'exsentences': 1,
+				'exintro': 1,
+				'explaintext': 1
+			},
+			'success': function(response) {
+				var search = response.query.search;
+
+				// If there is at least one valid search result, creates an InfoWindow that contains a snippet
+				// and a hyperlink to the Wikipedia page.
+				if (search.length > 0) {
+					var wikipediaLink = '<br><a href="https://en.wikipedia.org/?curid='+ search[0].pageid + '">More info</a>';
+					var content = search[0].snippet + wikipediaLink;
+				}
+				// Otherwise, just put an error message to show at the InfoWindow
+				else {
+					var content = 'No Wikipedia info found :(';
+				}
+
+				// Creates the InfoWindow with his content, and adds an click listener to his marker, to make it pop
+				// up when the user clicks at the marker.
+				var position = marker().getPosition();
+				var infowindow = new google.maps.InfoWindow({
+					'content': content,
+					'position': position,
+					'pixelOffset': new google.maps.Size(0, -35)
+				});
+				// Pushes to the infoWindows map, so we can get the InfoWindow when the user clicks at the list entries
+				self.infoWindows[position] = infowindow;
+
+				// Adds an event listener to open the InfoWindow whenever the user clicks the marker
+				marker().addListener('click', function() {
+					self.closeInfoWindows();
+					infowindow.open(self.map);
+				});
+			}
+		});
+
 		this.allMarkers.push(marker);
 		this.markers.push(marker);
+	};
+
+	/**
+	 * Opens the InfoWindow of the marker given. It works, since we have a click listener attached
+	 * to every marker, which opens his InfoWindow.
+	 *
+	 * @return void
+	 */
+	this.openInfoWindow = function(marker) {
+		self.closeInfoWindows();
+		// triggers the click event on the marker, which opens the InfoWindow
+		self.infoWindows[marker.getPosition()].open(self.map);
+	};
+
+	/**
+	 * Closes every InfoWindow on the map.
+	 *
+	 * @return void
+	 */
+	this.closeInfoWindows = function() {
+		var positions = Object.keys(self.infoWindows);
+		for (var i=0; i<positions.length; i++) {
+			var infowindow = self.infoWindows[positions[i]];
+			infowindow.close();
+		}
 	};
 
 	/**
@@ -133,8 +208,7 @@ ko.bindingHandlers.googlemap = {
 		// The request to PlacesService, to find our point of interest places
 		var request = {
 		    'location': location, // center of search location
-		    'radius': 1000, // max distance, in meters
-		    'type': ['point_of_interest'] // types of places we are searching for
+		    'radius': 1000 // max distance, in meters
 		};
 
 		// Instantiation of PlacesService to find nearby points of interest
@@ -153,4 +227,4 @@ ko.bindingHandlers.googlemap = {
 	}
 };
 
-ko.applyBindings(new MapViewModel(-23.59421, -46.6908882, 16));
+ko.applyBindings(new MapViewModel(38.704842, -9.161464, 16));
