@@ -3,21 +3,52 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 		<style type="text/css">
 			/* Initial style  to stretch the map to the entire screen */
-			html, body, #container, #map {
+			html, body, .container-fluid, .map-container, .row {
 				height: 100%;
 				width: 100%;
 				margin: 0;
 				padding: 0;
 			}
+
+			.col-lg-2 {
+				overflow-y: scroll;
+			}
 		</style>
 		<title>Neighborhood Map by Douglas Muraoka</title>
 	</head>
 	<body>
-		<div id="container">
-			<!-- Used to render map -->
-			<div id="map" data-bind="googlemap: $root"></div>
+		<div class="container-fluid">
+			<div class="row" data-bind="googlemap: $root">
+				<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+					<!-- Filter -->
+					<div class="input-group">
+						<input type="text" class="form-control" placeholder="Filter for..." aria-label="Filter for..." data-bind="textInput: filter">
+						<span class="input-group-btn">
+							<button class="btn btn-secondary" type="button" data-bind="click: applyFilter(filter)">Filter</button>
+							<button class="btn btn-secondary" type="button" data-bind="click: clearFilter">Clear</button>
+						</span>
+					</div>
+					<!-- Filter error message -->
+					<div class="alert alert-danger" role="alert" data-bind="visible: showFilterErrorMessage">
+						<span data-bind="text: filterErrorMessage"></span>
+					</div>
+
+					<!-- List of markers -->
+					<ul class="list-group" data-bind="foreach: markers">
+						<li class="list-group-item" data-bind="text: title"></li>
+					</ul>
+				</div>
+				<div class="col-sm-6 col-md-8 col-lg-9 col-xl-10 map-container">
+					<!-- Div to render Google Map -->
+					<div id="map"></div>
+				</div>
+			</div>
 		</div>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7_Yk1nTQK74cYcy23uc2qC0IFLCQV_KM&libraries=places"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
