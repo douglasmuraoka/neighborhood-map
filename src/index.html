@@ -25,10 +25,10 @@
 	<body>
 		<div class="container-fluid">
 			<div class="row" data-bind="googlemap: $root">
-				<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+				<div class="col-sm-6 col-md-4 col-lg-3">
 					<!-- Filter -->
 					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Filter for..." aria-label="Filter for..." data-bind="textInput: filter">
+						<input type="text" class="form-control" placeholder="Filter places..." aria-label="Filter places..." data-bind="textInput: filter">
 						<span class="input-group-btn">
 							<button class="btn btn-secondary" type="button" data-bind="click: applyFilter(filter)">Filter</button>
 							<button class="btn btn-secondary" type="button" data-bind="click: clearFilter">Clear</button>
@@ -43,8 +43,13 @@
 					<ul class="list-group" data-bind="foreach: markers">
 						<li class="list-group-item" data-bind="text: title, click: $parent.clickMarker"></li>
 					</ul>
+
+					<!-- Thanks Wikipedia :) -->
+					<section class="alert alert-info" role="alert">
+						Places information provided by <a href="https://www.mediawiki.org">Wikipedia</a>
+					</section>
 				</div>
-				<div class="col-sm-6 col-md-8 col-lg-9 col-xl-10 map-container">
+				<div class="col-sm-6 col-md-8 col-lg-9 map-container">
 					<!-- Div to render Google Map -->
 					<div id="map"></div>
 				</div>
