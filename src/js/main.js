@@ -36,7 +36,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return void
 	 */
-	this.addMarker = function(title, position) {
+	this.addMarker = function (title, position) {
 		// Creates a marker and add it to the list of markers
 		var marker = ko.observable(new google.maps.Marker({
 			'title': title,
@@ -59,10 +59,10 @@ var MapViewModel = function (lat, lng, zoom) {
 				'exintro': 1,
 				'explaintext': 1
 			},
-			'success': function(response) {
 			'timeout': 1000, // Sets the timeout to 1 second (I think we don't need more time than this to fetch data)
 
 			// If the request succeeds, parses information to set as the marker's InfoWindow content
+			'success': function (response) {
 				var search = response.query.search;
 
 				// If there is at least one valid search result, creates an InfoWindow that contains a snippet
@@ -112,7 +112,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return void
 	 */
-	this.animateMarker = function(marker) {
+	this.animateMarker = function (marker) {
 		for (var i=0; i<self.allMarkers.length; i++) {
 			var currentMarker = self.allMarkers[i]();
 			if (currentMarker !== marker) {
@@ -131,7 +131,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return void
 	 */
-	this.clickMarker = function(marker) {
+	this.clickMarker = function (marker) {
 		// Animates the clicked marker
 		self.animateMarker(marker);
 
@@ -147,7 +147,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return void
 	 */
-	this.closeInfoWindows = function() {
+	this.closeInfoWindows = function () {
 		var positions = Object.keys(self.infoWindows);
 		for (var i=0; i<positions.length; i++) {
 			var infowindow = self.infoWindows[positions[i]];
@@ -161,7 +161,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return true if a String is empty, false otherwise
 	 */
-	this.isEmpty = function(string){
+	this.isEmpty = function (string){
 		return !string || (typeof string === "string" && string.trim() === "");
 	};
 
@@ -172,7 +172,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 * @return true if there is a filter being applied and there is an error message to be shown,
 	 *         false otherwise
 	 */
-	this.showFilterErrorMessage = ko.computed(function() {
+	this.showFilterErrorMessage = ko.computed(function () {
 		return this.filter() != undefined && !this.isEmpty(this.filterErrorMessage());
 	}, this);
 
@@ -183,22 +183,33 @@ var MapViewModel = function (lat, lng, zoom) {
 	 *
 	 * @return void
 	 */
-	this.applyFilter = function(input) {
+	this.applyFilter = function (input) {
 		var filter = input();
 		if (filter !== undefined) {
 			self.markers.removeAll();
+
+			// If user input is empty, show this error message
 			if (self.isEmpty(filter)) {
 				self.filterErrorMessage("Filter must not be empty!");
-			} else {
+			}
+			// Otherwise cleans error message and filter markers by title
+			else {
 				self.filterErrorMessage("");
-				filter = filter.toLowerCase();
+
+				filter = filter.toLowerCase(); // lowers case to avoid problems with text comparison like "a" !== "A"
+
+				// For each marker, check if title contains the text input by user
 				for (var i=0; i<self.allMarkers.length; i++) {
 					var marker = self.allMarkers[i];
 					var title = marker().getTitle().toLowerCase();
+
+					// If positive, put/keep it on the map
 					if (title.indexOf(filter) != -1) {
 						self.markers.push(marker);
 						marker().setMap(self.map);
-					} else {
+					}
+					// Otherwise, remove it from the map
+					else {
 						marker().setMap(null);
 					}
 				}
@@ -212,7 +223,7 @@ var MapViewModel = function (lat, lng, zoom) {
 	 * 
 	 * @return void
 	 */
-	this.clearFilter = function() {
+	this.clearFilter = function () {
 		self.filterErrorMessage("");
 		self.filter("");
 		self.markers.removeAll();
@@ -249,7 +260,7 @@ ko.bindingHandlers.googlemap = {
 
 		// Instantiation of PlacesService to find nearby points of interest
 		viewModel.services.places = new google.maps.places.PlacesService(viewModel.map);
-		viewModel.services.places.nearbySearch(request, function callback(results, status) {
+		viewModel.services.places.nearbySearch(request, function (results, status) {
 			// If the request went fine, create markers for the first 5 of the places
 			if (status == google.maps.places.PlacesServiceStatus.OK) {
 				for (var i = 0; i < 5; i++) {
