@@ -41,7 +41,8 @@ var MapViewModel = function (lat, lng, zoom) {
 		var marker = ko.observable(new google.maps.Marker({
 			'title': title,
 			'position': position,
-			'map': self.map
+			'map': self.map,
+			'animation': google.maps.Animation.DROP
 		}));
 
 		// Creates a request to Wikipedia, allowing us to fetch additional info to show in an InfoWindow
@@ -77,15 +78,14 @@ var MapViewModel = function (lat, lng, zoom) {
 				var infowindow = new google.maps.InfoWindow({
 					'content': content,
 					'position': position,
-					'pixelOffset': new google.maps.Size(0, -35)
+					'pixelOffset': new google.maps.Size(0, -50)
 				});
 				// Pushes to the infoWindows map, so we can get the InfoWindow when the user clicks at the list entries
 				self.infoWindows[position] = infowindow;
 
 				// Adds an event listener to open the InfoWindow whenever the user clicks the marker
 				marker().addListener('click', function() {
-					self.closeInfoWindows();
-					infowindow.open(self.map);
+					self.clickMarker(this);
 				});
 			}
 		});
@@ -95,14 +95,38 @@ var MapViewModel = function (lat, lng, zoom) {
 	};
 
 	/**
-	 * Opens the InfoWindow of the marker given. It works, since we have a click listener attached
-	 * to every marker, which opens his InfoWindow.
+	 * Disables animation from every marker, except from the one given as parameter.
+	 * Enables animation from given marker, if it is disabled.
 	 *
 	 * @return void
 	 */
-	this.openInfoWindow = function(marker) {
+	this.animateMarker = function(marker) {
+		for (var i=0; i<self.allMarkers.length; i++) {
+			var currentMarker = self.allMarkers[i]();
+			if (currentMarker !== marker) {
+				currentMarker.setAnimation(null);
+			}
+		}
+		if (marker.getAnimation() === null) {
+			marker.setAnimation(google.maps.Animation.BOUNCE);
+		}
+	}
+
+	/**
+	 * Function that concentrates all actions when users clicks on a marker or place entry on the list.
+	 * Opens the InfoWindow of the marker given, while closing every other InfoWindow active,
+	 * and activates marker animation.
+	 *
+	 * @return void
+	 */
+	this.clickMarker = function(marker) {
+		// Animates the clicked marker
+		self.animateMarker(marker);
+
+		// Closes every InfoWindow on the map
 		self.closeInfoWindows();
-		// triggers the click event on the marker, which opens the InfoWindow
+
+		// Opens the InfoWindow associated to the marker
 		self.infoWindows[marker.getPosition()].open(self.map);
 	};
 
