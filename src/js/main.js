@@ -45,6 +45,7 @@ var MapViewModel = function (lat, lng, zoom) {
 			'animation': google.maps.Animation.DROP
 		}));
 
+		var content;
 		// Creates a request to Wikipedia, allowing us to fetch additional info to show in an InfoWindow
 		$.ajax('https://en.wikipedia.org/w/api.php', {
 			'dataType': 'jsonp',
@@ -59,19 +60,28 @@ var MapViewModel = function (lat, lng, zoom) {
 				'explaintext': 1
 			},
 			'success': function(response) {
+			'timeout': 1000, // Sets the timeout to 1 second (I think we don't need more time than this to fetch data)
+
+			// If the request succeeds, parses information to set as the marker's InfoWindow content
 				var search = response.query.search;
 
 				// If there is at least one valid search result, creates an InfoWindow that contains a snippet
 				// and a hyperlink to the Wikipedia page.
 				if (search.length > 0) {
 					var wikipediaLink = '<br><a href="https://en.wikipedia.org/?curid='+ search[0].pageid + '">More info</a>';
-					var content = search[0].snippet + wikipediaLink;
+					content = search[0].snippet + wikipediaLink;
 				}
 				// Otherwise, just put an error message to show at the InfoWindow
 				else {
-					var content = 'No Wikipedia info found :(';
+					content = 'No Wikipedia info found :(';
 				}
-
+			},
+			// If some error occured, sets this message as InfoWindow content
+			'error': function () {
+				content = "An error occured during information fetch from Wikipedia :(";
+			},
+			// Whether we get a success or error during our request, we still need to create our InfoWindow with some info
+			'complete': function () {
 				// Creates the InfoWindow with his content, and adds an click listener to his marker, to make it pop
 				// up when the user clicks at the marker.
 				var position = marker().getPosition();
@@ -84,13 +94,15 @@ var MapViewModel = function (lat, lng, zoom) {
 				self.infoWindows[position] = infowindow;
 
 				// Adds an event listener to open the InfoWindow whenever the user clicks the marker
-				marker().addListener('click', function() {
+				marker().addListener('click', function () {
 					self.clickMarker(this);
 				});
 			}
 		});
-
+		// Pushes created marker to the list that contains all markers from our model
 		this.allMarkers.push(marker);
+
+		// Also pushes to the current active marker list
 		this.markers.push(marker);
 	};
 
