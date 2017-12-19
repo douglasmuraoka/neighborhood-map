@@ -269,6 +269,13 @@ ko.bindingHandlers.googlemap = {
 					// Adds a new marker, based on search result
 					viewModel.addMarker(place.name, place.geometry.location);
 				}
+			} else {
+				// If an error occurred, set an error message on an InfoWindow and display it on the center of the map
+				var infowindow = new google.maps.InfoWindow({
+					'content': 'An error occurred during places data fetching. Try again :(',
+					'position': viewModel.map.getCenter()
+				});
+				infowindow.open(viewModel.map);
 			}
 		});
 	}
