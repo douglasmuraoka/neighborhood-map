@@ -186,7 +186,6 @@ var MapViewModel = function (lat, lng, zoom) {
 	this.applyFilter = function (input) {
 		var filter = input();
 		if (filter !== undefined) {
-			self.markers.removeAll();
 
 			// If user input is empty, show this error message
 			if (self.isEmpty(filter)) {
@@ -194,6 +193,7 @@ var MapViewModel = function (lat, lng, zoom) {
 			}
 			// Otherwise cleans error message and filter markers by title
 			else {
+				self.markers.removeAll();
 				self.filterErrorMessage("");
 
 				filter = filter.toLowerCase(); // lowers case to avoid problems with text comparison like "a" !== "A"
