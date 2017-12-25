@@ -27,6 +27,12 @@
 			.list-group-item, button {
 				cursor: pointer;
 			}
+
+			h1 {
+				height: 100%;
+				font-size: 48pt;
+				text-align: center;
+			}
 		</style>
 		<title>Neighborhood Map by Douglas Muraoka</title>
 	</head>
@@ -36,11 +42,10 @@
 				<div class="col-sm-6 col-md-4 col-lg-3">
 					<!-- Filter -->
 					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Filter places..." aria-label="Filter places..." data-bind="textInput: filter">
+						<input type="text" class="form-control" placeholder="Filter places..." aria-label="Filter places..." data-bind="value: filter, valueUpdate: 'keyup'" autocomplete="off" />
 						<span class="input-group-btn">
-							<button class="btn btn-secondary" type="button" data-bind="click: applyFilter(filter)">Filter</button>
-							<button class="btn btn-secondary" type="button" data-bind="click: clearFilter">Clear</button>
-						</span>
+-							<button class="btn btn-secondary" type="button" data-bind="click: clearFilter">Clear</button>
+-						</span>
 					</div>
 					<!-- Filter error message -->
 					<div class="alert alert-danger" role="alert" data-bind="visible: showFilterErrorMessage">
@@ -49,12 +54,12 @@
 
 					<!-- List of markers -->
 					<ul class="list-group" data-bind="foreach: markers">
-						<li class="list-group-item" data-bind="text: title, click: $parent.clickMarker"></li>
+						<li class="list-group-item" data-bind="text: title, click: $parent.clickList"></li>
 					</ul>
 
 					<!-- Thanks Wikipedia :) -->
 					<section class="alert alert-info" role="alert">
-						Places information provided by <a href="https://www.mediawiki.org">Wikipedia</a>
+						Places information provided by <a href="https://www.mediawiki.org" target="_blank">Wikipedia</a>
 					</section>
 				</div>
 				<div class="col-sm-6 col-md-8 col-lg-9 map-container">
@@ -63,8 +68,8 @@
 				</div>
 			</div>
 		</div>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7_Yk1nTQK74cYcy23uc2qC0IFLCQV_KM&libraries=places"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 		<script src="js/main.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7_Yk1nTQK74cYcy23uc2qC0IFLCQV_KM&libraries=places&callback=App.initMap" onerror="document.querySelector('.row').innerHTML = '<h1>GoogleMaps API could not be loaded :(</h1>';" async defer></script>
 	</body>
 </html>
